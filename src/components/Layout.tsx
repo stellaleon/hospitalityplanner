@@ -21,7 +21,7 @@ export function Layout({ children }: { children: ReactNode }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `hotel-planning-export-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.download = `hospitality-planner-export-${format(new Date(), 'yyyy-MM-dd')}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -58,7 +58,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <CalendarIcon className="w-5 h-5" />
               </div>
               <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-purple-600">
-                Hotel Planning
+                Hospitality Planner
               </h1>
             </div>
 

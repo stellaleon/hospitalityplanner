@@ -1,8 +1,8 @@
 import { format, addDays, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useStore } from '../store/useStore';
-import { ChevronLeft, ChevronRight, BedDouble, User, CreditCard, Clock } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { ChevronLeft, ChevronRight, BedDouble, User, CreditCard, Clock, Edit2 } from 'lucide-react';
+import { cn, parseDateLocal } from '../lib/utils';
 import type { Room, Reservation } from '../types';
 
 interface MobileAgendaProps {
@@ -10,7 +10,7 @@ interface MobileAgendaProps {
 }
 
 export function MobileAgenda({ onReservationClick }: MobileAgendaProps) {
-  const { rooms, reservations, selectedDateStr, setSelectedDateStr } = useStore();
+  const { rooms, reservations, selectedDateStr, setSelectedDateStr, updateRoom, roomStatuses, setRoomStatus } = useStore();
   const selectedDate = new Date(selectedDateStr);
 
   const prevDay = () => setSelectedDateStr(subDays(selectedDate, 1).toISOString().split('T')[0]);
@@ -20,11 +20,11 @@ export function MobileAgenda({ onReservationClick }: MobileAgendaProps) {
     // A guest occupies the room for the night if date >= start and date < end
     return reservations.find(r => {
       if (r.roomId !== roomId) return false;
-      const start = new Date(r.startDate);
-      const end = new Date(r.endDate);
+      const start = parseDateLocal(r.startDate);
+      const end = parseDateLocal(r.endDate);
       const checkDate = new Date(selectedDate);
       checkDate.setHours(0,0,0,0);
-      return checkDate >= start && checkDate < end;
+      return checkDate >= start && checkDate <= end;
     });
   };
 
@@ -69,14 +69,39 @@ export function MobileAgenda({ onReservationClick }: MobileAgendaProps) {
                   <div className={cn("p-2 rounded-lg", res ? "bg-primary-100 text-primary-700" : "bg-slate-200 text-slate-600")}>
                     <BedDouble className="w-5 h-5" />
                   </div>
-                  <h3 className="font-bold text-lg text-slate-800">{room.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-lg text-slate-800">{room.name}</h3>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newName = prompt("Inserisci il nuovo nome della camera:", room.name);
+                        if (newName && newName.trim()) updateRoom(room.id, newName.trim());
+                      }}
+                      className="text-slate-400 hover:text-primary-600"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <span className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold shadow-sm",
-                  res ? "bg-rose-100 text-rose-700 shadow-rose-200/50" : "bg-emerald-100 text-emerald-700 shadow-emerald-200/50"
-                )}>
-                  {res ? 'Occupata' : 'Libera'}
-                </span>
+                <div className="flex bg-white rounded-md shadow-sm items-center z-10">
+                   <select 
+                     value={roomStatuses[`${room.id}-${selectedDateStr}`] || (res ? 'Occupata' : 'Libera')}
+                     onChange={(e) => setRoomStatus(room.id, selectedDateStr, e.target.value as any)}
+                     onClick={(e) => e.stopPropagation()}
+                     className={cn(
+                       "px-3 py-1 rounded-full text-xs font-bold outline-none appearance-none cursor-pointer border hover:opacity-80 transition-colors shadow-sm text-center",
+                       (roomStatuses[`${room.id}-${selectedDateStr}`] || (res ? 'Occupata' : 'Libera')) === 'Occupata' && "bg-rose-100 text-rose-700 border-rose-200 shadow-rose-200/50",
+                       (roomStatuses[`${room.id}-${selectedDateStr}`] || (res ? 'Occupata' : 'Libera')) === 'Libera' && "bg-emerald-100 text-emerald-700 border-emerald-200 shadow-emerald-200/50",
+                       (roomStatuses[`${room.id}-${selectedDateStr}`] || (res ? 'Occupata' : 'Libera')) === 'Prenotata' && "bg-blue-100 text-blue-700 border-blue-200 shadow-blue-200/50",
+                       (roomStatuses[`${room.id}-${selectedDateStr}`] || (res ? 'Occupata' : 'Libera')) === 'Da pulire' && "bg-amber-100 text-amber-700 border-amber-200 shadow-amber-200/50"
+                     )}
+                   >
+                     <option value="Libera">Libera</option>
+                     <option value="Occupata">Occupata</option>
+                     <option value="Prenotata">Prenotata</option>
+                     <option value="Da pulire">Da pulire</option>
+                   </select>
+                </div>
               </div>
 
               <div className="p-5">
@@ -86,7 +111,7 @@ export function MobileAgenda({ onReservationClick }: MobileAgendaProps) {
                       <User className="w-5 h-5 text-slate-400 mt-0.5" />
                       <div>
                         <p className="text-sm font-semibold text-slate-800">{res.guestName}</p>
-                        <p className="text-xs text-slate-500 mt-1">{res.bookingType} • {res.adultsChildren}</p>
+                        <p className="text-xs text-slate-500 mt-1">{res.bookingType} • {res.adults} Ad. {res.children > 0 ? `, ${res.children} Bamb.` : ''}</p>
                       </div>
                     </div>
                     

@@ -10,8 +10,12 @@ export interface Reservation {
   endDate: string; // ISO yyyy-MM-dd
   guestName: string;
   bookingType: string;
-  contacts: string;
-  adultsChildren: string;
+  email: string;
+  phone: string;
+  adults: number;
+  children: number;
+  checkInTime?: string;
+  checkOutTime?: string;
   touristTax: number;
   breakfast: boolean;
   specialRequests: string;

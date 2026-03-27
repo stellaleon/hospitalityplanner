@@ -17,10 +17,14 @@ export function ReservationModal({ room, initialDate, existingReservation, onClo
   const [formData, setFormData] = useState<Omit<Reservation, 'id' | 'roomId'>>({
     startDate: existingReservation?.startDate || format(initialDate, 'yyyy-MM-dd'),
     endDate: existingReservation?.endDate || format(new Date(initialDate.getTime() + 86400000), 'yyyy-MM-dd'),
+    checkInTime: existingReservation?.checkInTime || '',
+    checkOutTime: existingReservation?.checkOutTime || '',
     guestName: existingReservation?.guestName || '',
     bookingType: existingReservation?.bookingType || 'Booking',
-    contacts: existingReservation?.contacts || '',
-    adultsChildren: existingReservation?.adultsChildren || '2 Adulti',
+    email: existingReservation?.email || '',
+    phone: existingReservation?.phone || '',
+    adults: existingReservation?.adults || 2,
+    children: existingReservation?.children || 0,
     touristTax: existingReservation?.touristTax || 0,
     breakfast: existingReservation?.breakfast || false,
     specialRequests: existingReservation?.specialRequests || '',
@@ -153,32 +157,79 @@ export function ReservationModal({ room, initialDate, existingReservation, onClo
               />
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Contatti</label>
-              <input 
-                type="text" 
-                name="contacts" 
-                value={formData.contacts} 
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm"
-                placeholder="Telefono o Email"
-              />
+            <div className="md:col-span-2 flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  value={formData.email} 
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm"
+                  placeholder="es. mario@email.com"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Telefono</label>
+                <input 
+                  type="tel" 
+                  name="phone" 
+                  value={formData.phone} 
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm"
+                  placeholder="es. +39 333..."
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">N° Adulti</label>
+                <input 
+                  type="number" min="1"
+                  name="adults" 
+                  value={formData.adults} 
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">N° Bambini</label>
+                <input 
+                  type="number" min="0"
+                  name="children" 
+                  value={formData.children} 
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="md:col-span-2 flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Orario Check-in</label>
+                <input 
+                  type="time" 
+                  name="checkInTime" 
+                  value={formData.checkInTime} 
+                  onChange={handleChange}
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm text-sm"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Orario Check-out</label>
+                <input 
+                  type="time" 
+                  name="checkOutTime" 
+                  value={formData.checkOutTime} 
+                  onChange={handleChange}
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm text-sm"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">N° Ospiti</label>
-              <input 
-                type="text" 
-                name="adultsChildren" 
-                value={formData.adultsChildren} 
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-sm"
-                placeholder="es. 2 Adulti 1 Bambino"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Trattamento</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Servizio</label>
               <div className="flex gap-4 mt-3">
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
                   <input type="checkbox" name="breakfast" checked={formData.breakfast} onChange={handleChange} className="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
