@@ -28,10 +28,29 @@ const ALL_ROWS = [
   { key: 'totalStay', label: 'Totale soggiorno' },
 ] as const;
 
+const getMonthTheme = (monthIndex: number) => {
+  const themes = [
+    { bg: 'bg-indigo-600', border: 'border-indigo-500', text: 'text-indigo-100', shadow: 'shadow-[1px_0_0_#4f46e5]' }, // Gen
+    { bg: 'bg-cyan-600', border: 'border-cyan-500', text: 'text-cyan-100', shadow: 'shadow-[1px_0_0_#0891b2]' }, // Feb
+    { bg: 'bg-emerald-600', border: 'border-emerald-500', text: 'text-emerald-100', shadow: 'shadow-[1px_0_0_#059669]' }, // Mar
+    { bg: 'bg-green-600', border: 'border-green-500', text: 'text-green-100', shadow: 'shadow-[1px_0_0_#16a34a]' }, // Apr
+    { bg: 'bg-yellow-600', border: 'border-yellow-500', text: 'text-yellow-100', shadow: 'shadow-[1px_0_0_#ca8a04]' }, // Mag
+    { bg: 'bg-orange-600', border: 'border-orange-500', text: 'text-orange-100', shadow: 'shadow-[1px_0_0_#ea580c]' }, // Giu
+    { bg: 'bg-rose-600', border: 'border-rose-500', text: 'text-rose-100', shadow: 'shadow-[1px_0_0_#e11d48]' }, // Lug
+    { bg: 'bg-red-600', border: 'border-red-500', text: 'text-red-100', shadow: 'shadow-[1px_0_0_#dc2626]' }, // Ago
+    { bg: 'bg-purple-600', border: 'border-purple-500', text: 'text-purple-100', shadow: 'shadow-[1px_0_0_#9333ea]' }, // Set
+    { bg: 'bg-amber-700', border: 'border-amber-600', text: 'text-amber-100', shadow: 'shadow-[1px_0_0_#b45309]' }, // Ott
+    { bg: 'bg-slate-600', border: 'border-slate-500', text: 'text-slate-100', shadow: 'shadow-[1px_0_0_#475569]' }, // Nov
+    { bg: 'bg-blue-700', border: 'border-blue-600', text: 'text-blue-100', shadow: 'shadow-[1px_0_0_#1d4ed8]' }, // Dic
+  ];
+  return themes[monthIndex] || themes[0];
+};
+
 export function DesktopGrid({ onDayClick }: DesktopGridProps) {
   const { rooms, reservations, currentMonthStr, updateRoom, roomStatuses, setRoomStatus } = useStore();
   
   const baseDate = startOfMonth(new Date(currentMonthStr));
+  const monthTheme = getMonthTheme(baseDate.getMonth());
   const daysInMonth = getDaysInMonth(baseDate);
   const days = Array.from({ length: daysInMonth }, (_, i) => addDays(baseDate, i));
 
@@ -99,14 +118,14 @@ export function DesktopGrid({ onDayClick }: DesktopGridProps) {
     <div className="flex-1 w-full overflow-hidden bg-white shadow-sm flex flex-col hidden md:flex">
       <div className="flex-1 overflow-auto border-t border-slate-200" style={{ maxHeight: 'calc(100vh - 4rem)' }}>
         <table className="w-full border-collapse min-w-max text-sm">
-          <thead className="sticky top-0 z-20 bg-primary-600 outline outline-1 outline-primary-700">
+          <thead className={cn("sticky top-0 z-20 outline outline-1", monthTheme.bg, monthTheme.border)}>
             <tr>
-              <th className="sticky left-0 z-30 bg-primary-600 text-white font-bold p-3 text-left w-48 shadow-[1px_0_0_#be185d]">
+              <th className={cn("sticky left-0 z-30 text-white font-bold p-3 text-left w-48", monthTheme.bg, monthTheme.shadow)}>
                 CAMERE
               </th>
               {days.map((day, i) => (
-                <th key={i} colSpan={2} className="min-w-[120px] max-w-[150px] border-r border-primary-500 p-2 text-center text-white">
-                  <div className="text-primary-100 font-medium text-xs uppercase tracking-wider">{format(day, 'E', { locale: it })}</div>
+                <th key={i} colSpan={2} className={cn("min-w-[120px] max-w-[150px] border-r p-2 text-center text-white", monthTheme.border)}>
+                  <div className={cn("font-medium text-xs uppercase tracking-wider", monthTheme.text)}>{format(day, 'E', { locale: it })}</div>
                   <div className="text-xl font-bold">{format(day, 'd')}</div>
                 </th>
               ))}

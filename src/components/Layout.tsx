@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useStore } from '../store/useStore';
-import { format, addMonths, subMonths, isSameMonth } from 'date-fns';
+import { format, addMonths, subMonths, isSameMonth, startOfMonth } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Download, Upload, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 
@@ -14,6 +14,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const handlePrevMonth = () => setCurrentMonthStr(subMonths(currentMonth, 1).toISOString());
   const handleNextMonth = () => setCurrentMonthStr(addMonths(currentMonth, 1).toISOString());
+  const handleToday = () => setCurrentMonthStr(startOfMonth(new Date()).toISOString());
 
   const handleExport = () => {
     const data = JSON.stringify(useStore.getState());
@@ -62,16 +63,23 @@ export function Layout({ children }: { children: ReactNode }) {
               </h1>
             </div>
 
-            <div className="hidden md:flex items-center flex-1 justify-center max-w-md mx-6">
-              <div className="flex items-center gap-4 bg-slate-100 rounded-full p-1.5 shadow-sm border border-slate-200/60">
+            <div className="hidden md:flex items-center flex-1 justify-center max-w-xl mx-6">
+              <div className="flex items-center gap-2 bg-slate-100 rounded-full p-1 shadow-sm border border-slate-200/60">
                 <button onClick={handlePrevMonth} className="p-1.5 hover:bg-white rounded-full transition-colors text-slate-600">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-lg font-semibold w-32 text-center capitalize text-slate-700">
-                  {format(currentMonth, 'MMMM yyyy', { locale: it })}
+                <h2 className="text-base font-bold min-w-[120px] text-center capitalize text-slate-700 whitespace-nowrap">
+                  {format(currentMonth, 'MMM yyyy', { locale: it })}
                 </h2>
                 <button onClick={handleNextMonth} className="p-1.5 hover:bg-white rounded-full transition-colors text-slate-600">
                   <ChevronRight className="w-5 h-5" />
+                </button>
+                <div className="h-4 w-px bg-slate-200 mx-1" />
+                <button 
+                  onClick={handleToday}
+                  className="px-4 py-1.5 text-xs font-bold text-primary-600 bg-white rounded-full border border-primary-100 hover:bg-primary-50 transition-all shadow-sm active:scale-95"
+                >
+                  Oggi
                 </button>
               </div>
             </div>
@@ -102,14 +110,22 @@ export function Layout({ children }: { children: ReactNode }) {
           
           <div className="md:hidden flex items-center justify-between py-3 border-t border-slate-100">
               <div className="flex items-center gap-2">
-                <button onClick={handlePrevMonth} className="p-1 text-slate-600">
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <h2 className="text-base font-semibold w-28 text-center capitalize text-slate-700">
-                  {format(currentMonth, 'MMM yyyy', { locale: it })}
-                </h2>
-                <button onClick={handleNextMonth} className="p-1 text-slate-600">
-                  <ChevronRight className="w-5 h-5" />
+                <div className="flex items-center bg-slate-50 rounded-full p-0.5 border border-slate-200/60">
+                  <button onClick={handlePrevMonth} className="p-1.5 text-slate-600">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <h2 className="text-sm font-bold min-w-[80px] text-center capitalize text-slate-700 mx-1">
+                    {format(currentMonth, 'MMM yy', { locale: it })}
+                  </h2>
+                  <button onClick={handleNextMonth} className="p-1.5 text-slate-600">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <button 
+                  onClick={handleToday}
+                  className="px-3 py-1.5 text-xs font-bold text-primary-600 border border-primary-100 rounded-lg bg-white shadow-sm hover:bg-primary-50 transition-all active:scale-95"
+                >
+                  Oggi
                 </button>
               </div>
               <div className="flex flex-col items-end">
