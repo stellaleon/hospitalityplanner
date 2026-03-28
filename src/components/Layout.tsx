@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useStore } from '../store/useStore';
 import { format, addMonths, subMonths, isSameMonth, startOfMonth } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Upload, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { Download, Upload, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -16,7 +16,16 @@ export function Layout({ children }: { children: ReactNode }) {
   const handleNextMonth = () => setCurrentMonthStr(addMonths(currentMonth, 1).toISOString());
   const handleToday = () => setCurrentMonthStr(startOfMonth(new Date()).toISOString());
 
-
+  const handleExport = () => {
+    const data = JSON.stringify(useStore.getState());
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hospitality-planner-export-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,8 +89,13 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="text-xs text-slate-500 font-medium tracking-wide uppercase">Totale Mensile</span>
                 <span className="text-lg font-bold text-emerald-600">€{monthlyTotal.toFixed(2)}</span>
               </div>
-              
-
+                            <button 
+                onClick={handleExport}
+                className="p-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                title="Esporta Dati"
+              >
+                <Download className="w-5 h-5" />
+              </button>
               <button 
                 onClick={() => fileInputRef.current?.click()}
                 className="p-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
