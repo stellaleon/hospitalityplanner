@@ -15,6 +15,8 @@ interface AppState {
   updateReservation: (id: string, rev: Partial<Reservation>) => void;
   deleteReservation: (id: string) => void;
   updateRoom: (id: string, name: string) => void;
+  addRoom: () => void;
+  deleteRoom: (id: string) => void;
   importData: (jsonData: string) => void;
 }
 
@@ -56,6 +58,15 @@ export const useStore = create<AppState>()(
         rooms: state.rooms.map(r => r.id === id ? { ...r, name } : r)
       })),
       
+      addRoom: () => set((state) => ({
+        rooms: [...state.rooms, { id: crypto.randomUUID(), name: `Nuova Camera` }]
+      })),
+
+      deleteRoom: (id) => set((state) => ({
+        rooms: state.rooms.filter(r => r.id !== id),
+        reservations: state.reservations.filter(r => r.roomId !== id)
+      })),
+
       importData: (jsonData) => {
         try {
           const parsed = JSON.parse(jsonData);

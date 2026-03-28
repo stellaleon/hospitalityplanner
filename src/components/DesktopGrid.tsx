@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { getDaysInMonth, startOfMonth, format, addDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn, parseDateLocal } from '../lib/utils';
 import type { Reservation, Room } from '../types';
-import { Edit2 } from 'lucide-react';
+import { Edit2, Plus, Trash2 } from 'lucide-react';
 
 interface DesktopGridProps {
   onDayClick: (room: Room, date: Date, existingReservation?: Reservation) => void;
@@ -19,7 +19,7 @@ const ALL_ROWS = [
   { key: 'end', label: 'Data e ora partenza' },
   { key: 'adults', label: 'N° adulti e bamb.' },
   { key: 'touristTax', label: 'Tourist tax' },
-  { key: 'servizio', label: 'Servizio (Colazione)' },
+  { key: 'servizio', label: 'Colazione' },
   { key: 'specialRequests', label: 'Richieste particolari' },
   { key: 'pets', label: 'Animali' },
   { key: 'extraExpenses', label: 'Spese extra' },
@@ -47,7 +47,8 @@ const getMonthTheme = (monthIndex: number) => {
 };
 
 export function DesktopGrid({ onDayClick }: DesktopGridProps) {
-  const { rooms, reservations, currentMonthStr, updateRoom, roomStatuses, setRoomStatus } = useStore();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { rooms, reservations, currentMonthStr, updateRoom, roomStatuses, setRoomStatus, addRoom, deleteRoom } = useStore();
   
   const baseDate = startOfMonth(new Date(currentMonthStr));
   const monthTheme = getMonthTheme(baseDate.getMonth());
@@ -130,6 +131,24 @@ export function DesktopGrid({ onDayClick }: DesktopGridProps) {
                 </th>
               ))}
             </tr>
+            <tr>
+              <th className="sticky left-0 z-30 p-2 text-left bg-white border-b border-slate-200 shadow-[1px_0_0_#e2e8f0]">
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className={cn(
+                    "flex items-center justify-center w-full px-3 py-1.5 rounded-md text-xs font-bold transition-colors border",
+                    isExpanded 
+                      ? "bg-emerald-500 text-white border-emerald-600" 
+                      : "bg-slate-200 text-slate-600 border-slate-300 hover:bg-slate-300"
+                  )}
+                >
+                  {isExpanded ? 'Chiudi le sottovoci' : 'Mostra le sottovoci'}
+                </button>
+              </th>
+              {days.map((_, i) => (
+                <th key={`empty-${i}`} colSpan={2} className="border-b border-slate-200 bg-white"></th>
+              ))}
+            </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {rooms.map(room => (
@@ -141,8 +160,15 @@ export function DesktopGrid({ onDayClick }: DesktopGridProps) {
                        <button onClick={() => {
                          const newName = prompt("Nuovo nome della camera:", room.name);
                          if (newName && newName.trim()) updateRoom(room.id, newName.trim());
-                       }} className="text-slate-400 hover:text-primary-600">
+                       }} className="text-slate-400 hover:text-primary-600 transition-colors" title="Rinomina camera">
                          <Edit2 className="w-4 h-4" />
+                       </button>
+                       <button onClick={() => {
+                         if (window.confirm("Sei sicuro di voler eliminare questa camera e tutte le sue prenotazioni?")) {
+                           deleteRoom(room.id);
+                         }
+                       }} className="text-slate-400 hover:text-rose-600 transition-colors" title="Elimina camera">
+                         <Trash2 className="w-4 h-4" />
                        </button>
                     </div>
                   </td>
@@ -182,7 +208,7 @@ export function DesktopGrid({ onDayClick }: DesktopGridProps) {
                   })}
                 </tr>
 
-                {ALL_ROWS.map(rowProp => {
+                {isExpanded && ALL_ROWS.map(rowProp => {
                    const roomReservations = reservations.map(r => ({
                       res: r,
                       interval: r.roomId === room.id ? getReservationHalfDayInterval(r) : null
@@ -203,7 +229,7 @@ export function DesktopGrid({ onDayClick }: DesktopGridProps) {
                                <td 
                                  key={halfIndex} 
                                  colSpan={interval!.colSpan} 
-                                 className="border border-slate-200 px-1 py-1.5 bg-primary-50/40 relative min-w-[60px]"
+                                 className="border border-slate-200 px-1 py-1.5 bg-[#fef9c3] relative min-w-[60px]"
                                >
                                  <div 
                                    className="w-full h-full cursor-pointer hover:opacity-80 transition-opacity absolute inset-0 pt-1.5 pl-1.5 z-0"
@@ -236,6 +262,15 @@ export function DesktopGrid({ onDayClick }: DesktopGridProps) {
             ))}
           </tbody>
         </table>
+        <div className="p-4 sticky left-0 bg-white border-t border-slate-200 w-full flex border-b">
+          <button 
+            onClick={addRoom} 
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-600/30 transition-transform active:scale-95"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Aggiungi Camera</span>
+          </button>
+        </div>
       </div>
     </div>
   );

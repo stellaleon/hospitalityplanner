@@ -43,7 +43,7 @@ export function ReservationModal({ room, initialDate, existingReservation, onClo
     
     if (nights > 0 && formData.pricePerNight >= 0) {
       const baseTotal = nights * Number(formData.pricePerNight);
-      const withExtras = baseTotal + Number(formData.extraExpenses) + Number(formData.touristTax);
+      const withExtras = baseTotal + Number(formData.extraExpenses) + (Number(formData.touristTax) * nights);
       setFormData(prev => ({ ...prev, totalStay: withExtras }));
     }
   }, [formData.startDate, formData.endDate, formData.pricePerNight, formData.extraExpenses, formData.touristTax]);
@@ -130,7 +130,7 @@ export function ReservationModal({ room, initialDate, existingReservation, onClo
               >
                 <option value="Booking">Booking</option>
                 <option value="Airbnb">Airbnb</option>
-                <option value="Diretto">Diretto</option>
+                <option value="Diretta">Diretta</option>
                 <option value="Altro">Altro</option>
               </select>
             </div>
@@ -265,7 +265,7 @@ export function ReservationModal({ room, initialDate, existingReservation, onClo
                   <input type="number" name="extraExpenses" value={formData.extraExpenses} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-primary-500 text-sm font-semibold text-slate-800" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Tassa Sogg. €</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Tassa Sogg. / Notte €</label>
                   <input type="number" name="touristTax" value={formData.touristTax} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-primary-500 text-sm font-semibold text-slate-800" />
                 </div>
                 <div>
